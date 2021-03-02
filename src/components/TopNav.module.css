@@ -1,0 +1,13 @@
+.nav {
+  border-bottom: 1px solid black;
+  margin-bottom: 10px;
+}
+
+.linkCtnr {
+  display: flex;
+  list-style-type: none;
+}
+
+.link {
+  margin: 0px 5px;
+}
