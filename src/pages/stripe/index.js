@@ -5,7 +5,8 @@ export default function Stripe() {
   const router = useRouter();
 
   const paymentLinks = [
-    ['/simple-payment','Simple Payment']
+    ['/simple-payment','Simple Payment'],
+    ['/session-payment', 'Session Payment']
   ]
 
   const links = paymentLinks.map(link => {
