@@ -1,6 +1,6 @@
 'use strict';
 const router = require('express').Router();
-const STRIPE_SECRET = 'sk_test_tEwBzR5jn9AGrF4Xty9eYf5H00qg0Rg8Fg';
+const STRIPE_SECRET = process.env.API_STRIPE_SECRET;
 const stripe = require('stripe')(STRIPE_SECRET);
 
 const subScriptionvalues = {
@@ -11,9 +11,12 @@ const subScriptionvalues = {
 
 router.post('/intent', async (req, res, next) => {
   try {
-    const customer = await stripe.customers.create();
+    const customer = await stripe.customers.create({
+      description: 'test customer',
+      email: req.body.email
+    });
 
-    // save customer.id to database?
+    // save customer.id to database for future use?
 
     const paymentIntent = await stripe.paymentIntents.create({
       customer: customer.id,
@@ -31,33 +34,6 @@ router.post('/intent', async (req, res, next) => {
     console.log(error.message);
     next(error);
   }
-});
-
-router.post('/charge-customer', (req, res, next) => {
-  
-});
-
-router.post('/create-session', async (req, res) => {
-  const session = await stripe.checkout.sessions.create({
-    payment_method_types: ['card'],
-    line_items: [
-      {
-        price_data: {
-          currency: 'usd',
-          product_data: {
-            name: 'Monthly',
-          },
-          unit_amount: 100,
-        },
-        quantity: 1,
-      },
-    ],
-    mode: 'payment',
-    success_url: 'https://example.com/success',
-    cancel_url: 'https://example.com/cancel',
-  });
-
-  res.json({ id: session.id });
 });
 
 module.exports = router;

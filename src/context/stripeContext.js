@@ -17,7 +17,7 @@ const actions = {
   RESET: 'RESET'
 }
 
-function reducer(state, action) {
+function reducer(state = initialState, action) {
   switch(action.type) {
     case 'PAYMENT_INTENT_SUCCESS':
       return {...state, ...action.payload};
