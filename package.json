@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node src/server.js",
-    "dev": "nodemon node src/server.js",
+    "start": "NODE_ENV=production node src/server.js",
+    "dev": "node src/server.js",
     "build": "next build"
   },
   "author": "",
@@ -15,6 +15,7 @@
     "@stripe/react-stripe-js": "^1.2.2",
     "@stripe/stripe-js": "^1.12.1",
     "axios": "^0.21.1",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "next": "^10.0.7",
     "react": "^17.0.1",
