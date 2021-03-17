@@ -2,9 +2,12 @@ import {useContext, useEffect, useState} from 'react';
 import {useRouter} from 'next/router';
 import {CardElement, useElements, useStripe} from '@stripe/react-stripe-js';
 import {StripeContext, actions} from '../context/stripeContext';
-import styles from './StripePaymentIntentForm.module.css';
+import styles from './SubscriptionForm.module.css';
+import testValues from './helpers/testCardFieldValues';
+import subOptns from './helpers/subscriptionOptions';
+import copyToClipboard from './helpers/copyToClipboard';
 
-export default function StripePayment() {
+export default function StripePaymentForm() {
   const stripe = useStripe();
   const elements = useElements();
   const [ctx, dispatch] = useContext(StripeContext);
@@ -14,23 +17,13 @@ export default function StripePayment() {
   const basePath = router.pathname.split('/').slice(0, -1).join('/');
   const amount = (ctx.amount / 100).toFixed(2);
 
-  if (!stripe || !elements || !ctx.clientToken) return null;
+  if (!ctx.clientToken) return null;
 
-  const testValues = {
-    card: '4242 4242 4242 4242',
-    expiry: '01/24',
-    cvc: '123'
-  }
-
-  function amountDisplay(amount) {
-    const values = {
-      1: 'Monthly',
-      6: '6 Months',
-      12: 'Annually'
+  useEffect(() => {
+    if (ctx.paymentJSON) {
+      router.push(basePath + '/success');
     }
-
-    return values[amount];
-  }
+  }, [ctx.paymentJSON]);
 
   async function handleSub(event) {
     try {
@@ -44,9 +37,6 @@ export default function StripePayment() {
         {
           payment_method: {
             card: cardElement,
-            billing_details: {
-              name: 'Jenny Rosen',
-            }
           },
           receipt_email: ctx.email
         }
@@ -57,25 +47,16 @@ export default function StripePayment() {
         return;
       }
 
-      console.log(result);
-
-      dispatch({
-        type: actions.PAYMENT_SUCCESS, 
-        payload: {paymentJSON: result.paymentIntent}
-      });
+      dispatch(actions.submitPayment({paymentJSON: result.paymentIntent}));
     } catch (error) {
       console.log(error);
       setLoading(false);
     }
   }
 
-  function copyTestValue(type) {
-    return async function() {
-      try {
-        await navigator.clipboard.writeText(testValues[type]);
-      } catch (error) {
-        console.error(error);
-      }
+  function copyTestValue(value) {
+    return async function () {
+      await copyToClipboard(value);
     }
   }
 
@@ -83,16 +64,10 @@ export default function StripePayment() {
     setError(error ? error.message : '');
   }
 
-  useEffect(() => {
-    if (ctx.paymentJSON) {
-      router.push(basePath + '/success');
-    }
-  }, [ctx.paymentJSON])
-
   return (
     <form className={styles.form} onSubmit={handleSub}>
       <h1>Checkout</h1>
-      <div><p>Amount: ${amount} ({amountDisplay(ctx.option)})</p></div>
+      <div><p>Amount: ${amount} ({subOptns[ctx.option].title})</p></div>
       <div className={styles.formRow}>
         <CardElement 
           options={{
@@ -107,7 +82,6 @@ export default function StripePayment() {
               invalid: {
                 color: '#9e2146',
               },
-              
             },
             value: {postalCode: '12345'}
           }}
@@ -116,19 +90,21 @@ export default function StripePayment() {
         />
         </div>
         <div>
-        <span>Test Card: {testValues.card}</span>
-        <button type='button' onClick={copyTestValue('card')}>Copy</button>
-      </div>
-      <div>
-        <span>Test Expiry: {testValues.expiry}</span>
-        <button type='button' onClick={copyTestValue('expiry')}>Copy</button>
-      </div>
-      <div>
-        <span>Test CVC: {testValues.cvc}</span>
-        <button type='button' onClick={copyTestValue('cvc')}>Copy</button>
-      </div>
-      <button disabled={loading}>SUBMIT</button>
+          <div>
+            <span>Test Card: {testValues.card}</span>
+            <button type='button' onClick={copyTestValue(testValues['card'])}>Copy</button>
+          </div>
+          <div>
+            <span>Test Expiry: {testValues.expiry}</span>
+            <button type='button' onClick={copyTestValue(testValues['expiry'])}>Copy</button>
+          </div>
+          <div>
+            <span>Test CVV: {testValues.cvc}</span>
+            <button type='button' onClick={copyTestValue(testValues['cvc'])}>Copy</button>
+          </div>
+        </div>
+        <button disabled={loading}>SUBMIT</button>
       <div>{error && <p style={{color: 'red'}}>{error}</p>}</div>
     </form>
-  )
+  )  
 }

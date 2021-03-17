@@ -1,8 +1,4 @@
 import {createContext, useReducer, useState} from 'react';
-import {Elements} from '@stripe/react-stripe-js';
-import {loadStripe} from '@stripe/stripe-js';
-
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PK);
 const StripeContext = createContext([]);
 
 const initialState = {
@@ -11,10 +7,26 @@ const initialState = {
   paymentJSON: null
 };
 
-const actions = {
+const actionTypes = {
   PAYMENT_INTENT_SUCCESS: 'PAYMENT_INTENT_SUCCESS',
   PAYMENT_SUCCESS: 'PAYMENT_SUCCESS',
   RESET: 'RESET'
+}
+
+class Action {
+  constructor(type, payload) {
+    this.type = type;
+    this.payload = payload;
+  }
+}
+
+const actions = {
+  submitPaymentIntent(payload) {
+    return new Action(actionTypes.PAYMENT_INTENT_SUCCESS, payload);
+  },
+  submitPayment(payload) {
+    return new Action(actionTypes.PAYMENT_SUCCESS, payload);
+  }
 }
 
 function reducer(state = initialState, action) {
@@ -34,11 +46,9 @@ function StripeDataProvider(props) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   return (
-    <Elements stripe={stripePromise}>
-      <StripeContext.Provider value={[state, dispatch]}>
-        {props.children}
-      </ StripeContext.Provider>
-    </Elements>
+    <StripeContext.Provider value={[state, dispatch]}>
+      {props.children}
+    </ StripeContext.Provider>
   )
 }
 

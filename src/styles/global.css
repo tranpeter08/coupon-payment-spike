@@ -23,3 +23,8 @@
 .StripeElement--webkit-autofill {
   background-color: #fefde5 !important;
 }
+
+.sq-input {
+  /* border: 1px solid darkgray; */
+  box-shadow: 0 0 10px grey;
+}

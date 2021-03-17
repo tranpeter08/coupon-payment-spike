@@ -2,6 +2,7 @@ require('dotenv').config({path: '.env.local'});
 const express = require('express')
 const nextJs = require('next')
 const stripeRouter = require('./routes/stripe');
+const squareRouter = require('./routes/square');
 
 const port = parseInt(process.env.PORT, 10) || 3000
 const dev = process.env.NODE_ENV !== 'production'
@@ -11,6 +12,7 @@ const server = express();
 
 server.use(express.json());
 server.use('/api/stripe', stripeRouter);
+server.use('/api/square', squareRouter);
 
 app.prepare().then(() => {
   server.get('/a', (req, res) => {

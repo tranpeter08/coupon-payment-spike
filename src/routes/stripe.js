@@ -21,7 +21,7 @@ router.post('/intent', async (req, res, next) => {
     const paymentIntent = await stripe.paymentIntents.create({
       customer: customer.id,
       setup_future_usage: 'off_session',
-      amount: subScriptionvalues[req.body.amount],
+      amount: subScriptionvalues[req.body.option],
       currency: 'usd',
       receipt_email: req.body.email
     });
